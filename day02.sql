@@ -22,7 +22,7 @@ SELECT DISTINCT job
 --    이 결과로 다섯 종류의 JOB가 있다는 걸 확인할 수 있다.
 
 /* 다중 행 주석
-JOB
+JOB 
 --------
 CLERK
 SALESMAN

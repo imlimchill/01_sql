@@ -146,7 +146,7 @@ SELECT e.empno
      , e.ename
      , e.sal
   FROM emp e
- WHERE NOT e.sal < 2000
+ WHERE e.sal >= 2000
 ;
 /*
 EMPNO,  ENAME,  SAL
@@ -467,3 +467,286 @@ SELECT '급여가 10000이 넘는 직원이 존재하지 않음' as "시스템 메시지"
 급여가 10000이 넘는 직원이 존재하지 않음
 */
 
+----------------------------------------
+-- (6) 연산자 : 5. 결합연산자 (||) : 오라클에만 존재, 문자열의 결합(접합)
+--              다른 프로그래밍언어(java, c, c++ 등) 에서는 OR연산자로 사용되므로 혼동되면 안됨
+SELECT 'Hello~, SQL'
+  FROM dual
+;
+
+SELECT 'Hello~, SQL' || 'in Oracle!' AS greeting
+  FROM dual
+;
+/*
+GREETING
+---------------------
+Hello~, SQLin Oracle!
+*/
+
+SELECT '안녕하세요~, SQL' || '오라클에서 배우고 있어요!'
+  FROM dual
+;
+-- 안녕하세요~, SQL오라클에서 배우고 있어요!
+
+-- dual 테이블 활용, 오늘의 날짜를 알려주는 문장 > "오늘의 날짜는 0000입니다."를 출력
+SELECT '오늘의 날짜는' || sysdate || '입니다.' AS "오늘의 날짜"
+  FROM dual
+;
+-- 오늘의 날짜는19/05/17입니다.
+
+-- 날짜 출력형식을 바꾸어 출력
+SELECT '오늘의 날짜는' 
+       || TO_CHAR(sysdate, 'YYYY-MM-D') 
+       || '입니다.' AS "오늘의 날짜"
+  FROM dual
+;
+-- 오늘의 날짜는2019-05-6입니다.
+
+-- 직원의 사번 알리미를 만들고 싶다.
+-- 직원의 사번을 알려주는 구문 ||를 사용하여 작성
+SELECT '안녕하세요 ' || e.ename || '씨, 당신의 사번은 '
+                      || e.empno || '입니다.' AS "사번알리미"
+  FROM emp e
+;
+/*
+사번알리미
+------------------------------------------------
+안녕하세요 J_JAMES씨, 당신의 사번은 9999입니다.
+안녕하세요 J%JAMES씨, 당신의 사번은 8888입니다.
+안녕하세요 SMITH씨, 당신의 사번은 7369입니다.
+안녕하세요 ALLEN씨, 당신의 사번은 7499입니다.
+안녕하세요 WARD씨, 당신의 사번은 7521입니다.
+안녕하세요 JONES씨, 당신의 사번은 7566입니다.
+안녕하세요 MARTIN씨, 당신의 사번은 7654입니다.
+안녕하세요 BLAKE씨, 당신의 사번은 7698입니다.
+안녕하세요 CLARK씨, 당신의 사번은 7782입니다.
+안녕하세요 KING씨, 당신의 사번은 7839입니다.
+안녕하세요 TURNER씨, 당신의 사번은 7844입니다.
+안녕하세요 JAMES씨, 당신의 사번은 7900입니다.
+안녕하세요 FORD씨, 당신의 사번은 7902입니다.
+안녕하세요 MILLER씨, 당신의 사번은 7934입니다.
+*/
+
+
+------------------------------------------------------------------------
+-- (6) 연산자 : 6. 집합연삽자
+-- 첫 번째 쿼리 : 부서 테이블의 모든 정보 조회
+SELECT d.deptno
+     , d.dname
+     , d.loc
+  FROM dept d
+;
+
+-- 두 번째 쿼리 : 부서번호가 10인 부서의 정보 조회
+SELECT d.deptno
+     , d.dname
+     , d.loc
+  FROM dept d
+ WHERE d.deptno = 10
+;
+
+-- 1) UNION ALL : 중복허용한 합집합
+SELECT d.deptno
+     , d.dname
+     , d.loc
+  FROM dept d
+ UNION ALL
+SELECT d.deptno
+     , d.dname
+     , d.loc
+  FROM dept d
+ WHERE d.deptno = 10
+;
+/*
+DEPTNO, DNAME,      LOC
+------------------------
+10	    ACCOUNTING	NEW YORK
+20	    RESEARCH	DALLAS
+30	    SALES	    CHICAGO
+40	    OPERATIONS	BOSTON
+10	    ACCOUNTING	NEW YORK
+*/
+
+-- 2) UNION : 중복을 제거한 합집합
+SELECT d.deptno
+     , d.dname
+     , d.loc
+  FROM dept d
+ UNION
+SELECT d.deptno
+     , d.dname
+     , d.loc
+  FROM dept d
+ WHERE d.deptno = 10
+;
+/*
+DEPTNO, DNAME,      LOC
+------------------------------
+10	    ACCOUNTING	NEW YORK
+20	    RESEARCH	DALLAS
+30	    SALES	    CHICAGO
+40	    OPERATIONS	BOSTON
+*/
+
+-- 3) INTERSECT : 중복된 데이터만 남기는 교집합
+SELECT d.deptno
+     , d.dname
+     , d.loc
+  FROM dept d
+INTERSECT
+SELECT d.deptno
+     , d.dname
+     , d.loc
+  FROM dept d
+ WHERE d.deptno = 10
+;
+/*
+DEPTNO, DNAME,      LOC
+------------------------------
+10	    ACCOUNTING	NEW YORK
+*/
+
+-- 4) MINUS : 첫 번째 실행결과 - 두번째 실행결과 한 차집합
+SELECT d.deptno
+     , d.dname
+     , d.loc
+  FROM dept d
+ MINUS
+SELECT d.deptno
+     , d.dname
+     , d.loc
+  FROM dept d
+ WHERE d.deptno = 10
+;
+/*
+DEPTNO, DNAME,      LOC
+------------------------------
+20	    RESEARCH	DALLAS
+30	    SALES	    CHICAGO
+40	    OPERATIONS	BOSTON
+*/
+
+-- 주의! : 두 쿼리의 조회 결과의 컬럼의 객수, 데이터 타입의 순서가 일치
+-- 1) 오류상황 : 첫쿼리 컬럼수 3, 두번째 쿼리 컬럼수 2
+SELECT d.deptno
+     , d.dname
+     , d.loc
+  FROM dept d
+ UNION ALL
+SELECT d.deptno
+     , d.dname
+  FROM dept d
+ WHERE d.deptno = 10
+;
+/*
+ORA-01789: 질의 블록은 부정확한 수의 결과 열을 가지고 있습니다.
+01789. 00000 -  "query block has incorrect number of result columns"
+*/
+
+-- 2) 오류상황 : 첫 쿼리는 컬럼이 문자, 숫자 순서 / 두번째는 컬럼이 숫자, 문자
+SELECT d.dname -- 문자
+     , d.deptno --숫자
+  FROM dept d
+ UNION ALL
+SELECT d.deptno --숫자
+     , d.dname --문자
+  FROM dept d
+ WHERE d.deptno = 10
+;
+/*
+ORA-01790: 대응하는 식과 같은 데이터 유형이어야 합니다
+01790. 00000 -  "expression must have same datatype as corresponding expression"
+*/
+
+-- 집합연산자는 서로 다른 테이블의 조회 결과도 연산이 가능하다ㅣ
+-- 첫 번째 쿼리 : emp테이블에서 조회
+SELECT e.empno --숫자
+     , e.ename --문자
+     , e.job --문자
+  FROM emp e
+;
+-- 두 번째 쿼리 : dept 테이블에서 조회
+SELECT d.deptno --숫자
+     , d.dname --문자
+     , d.loc --문자
+  FROM dept d
+;  
+
+-- 1) UNION (중복없는 합집합)
+SELECT e.empno --숫자
+     , e.ename --문자
+     , e.job --문자
+  FROM emp e
+ UNION
+SELECT d.deptno --숫자
+     , d.dname --문자
+     , d.loc --문자
+  FROM dept d
+; 
+/* 합집합의 컬럼명은 첫번째 쿼리의 컬럼 이름이 선택됨
+EMPNO,  ENAME,      JOB
+---------------------------
+10	    ACCOUNTING	NEW YORK
+20	    RESEARCH	DALLAS
+30	    SALES	    CHICAGO
+40	    OPERATIONS	BOSTON
+7369	SMITH   	CLERK
+7499	ALLEN   	SALESMAN
+7521	WARD    	SALESMAN
+7566	JONES   	MANAGER
+7654	MARTIN  	SALESMAN
+7698	BLAKE   	MANAGER
+7782	CLARK   	MANAGER
+7839	KING    	PRESIDENT
+7844	TURNER  	SALESMAN
+7900	JAMES   	CLERK
+7902	FORD    	ANALYST
+7934	MILLER  	CLERK
+8888	J%JAMES 	CLERK
+9999	J_JAMES 	CLERK
+*/
+
+-- 2) MINUS (차집합)
+SELECT e.empno --숫자
+     , e.ename --문자
+     , e.job --문자
+  FROM emp e
+ MINUS
+SELECT d.deptno --숫자
+     , d.dname --문자
+     , d.loc --문자
+  FROM dept d
+; 
+/*
+EMPNO,  ENAME,  JOB
+------------------------
+7369	SMITH	CLERK
+7499	ALLEN	SALESMAN
+7521	WARD	SALESMAN
+7566	JONES	MANAGER
+7654	MARTIN	SALESMAN
+7698	BLAKE	MANAGER
+7782	CLARK	MANAGER
+7839	KING	PRESIDENT
+7844	TURNER	SALESMAN
+7900	JAMES	CLERK
+7902	FORD	ANALYST
+7934	MILLER	CLERK
+8888	J%JAMES	CLERK
+9999	J_JAMES	CLERK
+*/
+
+-- 3) INTERSECT (교집합)
+SELECT e.empno --숫자
+     , e.ename --문자
+     , e.job --문자
+  FROM emp e
+INTERSECT
+SELECT d.deptno --숫자
+     , d.dname --문자
+     , d.loc --문자
+  FROM dept d
+; 
+
+--> 인출된 모든 행 : 0 ==> 조회성공, 결과가 없을 뿐
+-- 서로 다른 테이블의 데이터 조회 결과들을 가진 쿼리이므로 중복된 데이터가 없음으로 교집합 결과도 1행도 없음

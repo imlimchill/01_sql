@@ -84,10 +84,36 @@ EMPNO,  ENAME,   JOB,       SAL,     MGR
 
 ----------------------------------------- 6. 함수
 -- (3) 단일행 함수
-------
--------- 1. MOD(m,n) : 
+------ 숫자 함수 :
+-------- 1. MOD(m,n) : m을 n으로 나눈 나머지 계산 함수
+SELECT MOD(10,3)
+  FROM emp
+;
+-- 결과 : 1이 emp테이블의 행 수 만큼 출력
 
--------- 2. ROUND(m,n) :
+SELECT MOD(10,3)
+  FROM dept
+;
+-- 결과 : 1이 dept테이블의 행 수 만큼 출력
+
+SELECT MOD(10,3)
+  FROM daul
+;
+-- 결과 : 1이 daul테이블의 행 수 만큼 출력
+
+
+-- 문제 : 각 사원의 급여를 3으로 나눈 나머지를 조회
+SELECT MOD(e.sal,3)
+  FROM emp e
+;
+
+-- 문제 : 각 사원의 급여를 3으로 나눈 나머지를 사번과 함꼐 조회
+SELECT e.empno
+     , MOD(e.sal,3)
+  FROM emp e
+;
+
+-------- 2. ROUND(m,n) : 실수 m을 소수전 n + 1자리에서 반올림한 결과 계산
 
 SELECT ROUND(1234.56, 1) -- 1234.6
   FROM dual

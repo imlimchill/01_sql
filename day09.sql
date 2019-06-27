@@ -684,8 +684,97 @@ CLERK	     $1,016.67
 */
 
 -- 8. 년도별 입사 인원을 구하시오
-SELECT e.hiredate "입사년도"
-     , COUNT(e.hiredate)
+SELECT TO_CHAR(e.hiredate, 'YYYY') "입사년도"
+     , COUNT(*)
   FROM emp e
- GROUP BY e.hiredate
+ GROUP BY TO_CHAR(e.hiredate, 'YYYY')
 ;
+
+-- 9. 년도별, 워렵ㄹ 입사인원을 구하기오
+--    : (1) hiredate 를 활용 
+--      (2) 에서 년도, 월을 추출
+--      (3) 추출된 두 값을 그룸화으로 기준
+--      (4) COUNT
+
+-- a) 년도 추출 :  TO_CHAR(e.hiredate, 'YYYY')
+--      월 추출 :  TO_CHAR(e.hiredate, 'YYYY')
+
+-- b) 두 가지 기분으로 그룸화 적용
+SELECT TO_CHAR(e.hiredate, 'YYYY')  "입사 년도"
+     , TO_CHAR(e.hiredate, 'MM')    "입사 월"
+     , COUNT(*)                    "인원(명)"
+  FROM emp e
+ GROUP BY TO_CHAR(e.hiredate, 'YYYY'), TO_CHAR(e.hiredate, 'MM')
+ ORDER BY "입사 년도", "입사 월"
+;
+
+-- c) 년도별, 월병 입사 인원의 출력을 가로 표 형태로 변환
+--      : 년도 추출 :  TO_CHAR(e.hiredate, 'YYYY')
+--        월 추출 :  TO_CHAR(e.hiredate, 'YYYY')
+
+--      : hiredate 에서 추출한 월의 값이 01이 나올 때 그 때의 행의 갯수를 1월에서 카운드(COUNT())
+--        이 과정을 12월까지 반복
+SELECT e.empno
+     , e.ename
+     , TO_CHAR(e.hiredate, 'YYYY') "입사 년도"
+     , TO_CHAR(e.hiredate, 'MM') "입사 월"
+     , DECODE(TO_CHAR(e.hiredate, 'MM'), '01', 1) "1월"
+     , DECODE(TO_CHAR(e.hiredate, 'MM'), '02', 1) "2월"
+     , DECODE(TO_CHAR(e.hiredate, 'MM'), '03', 1) "3월"
+     , DECODE(TO_CHAR(e.hiredate, 'MM'), '04', 1) "4월"
+     , DECODE(TO_CHAR(e.hiredate, 'MM'), '05', 1) "5월"
+     , DECODE(TO_CHAR(e.hiredate, 'MM'), '06', 1) "6월"
+     , DECODE(TO_CHAR(e.hiredate, 'MM'), '07', 1) "7월"
+     , DECODE(TO_CHAR(e.hiredate, 'MM'), '08', 1) "8월"
+     , DECODE(TO_CHAR(e.hiredate, 'MM'), '09', 1) "9월"
+     , DECODE(TO_CHAR(e.hiredate, 'MM'), '10', 1) "10월"
+     , DECODE(TO_CHAR(e.hiredate, 'MM'), '11', 1) "11월"
+     , DECODE(TO_CHAR(e.hiredate, 'MM'), '12', 1) "12월"
+  FROM emp e
+;
+
+-- 그룹화 기준 컬럼을 "입사 년도"로 잡는다.
+-- 각 행의 1월에서 12월에 1이 등장하는 갯수를 세어야 하므로 COUNT()를 사용
+SELECT TO_CHAR(e.hiredate, 'YYYY') "입사 년도"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '01', 1)) "1월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '02', 1)) "2월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '03', 1)) "3월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '04', 1)) "4월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '05', 1)) "5월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '06', 1)) "6월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '07', 1)) "7월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '08', 1)) "8월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '09', 1)) "9월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '10', 1)) "10월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '11', 1)) "11월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '12', 1)) "12월"
+  FROM emp e
+ GROUP BY TO_CHAR(e.hiredate, 'YYYY')
+ ORDER BY "입사 년도"
+;
+/*
+입사 년도, 1월,2월,3월,4월,5월,6월,7월,8월,9월 10월,11월,12월
+-------------------------------------------------------------
+    1980	0	0	0	0	0	0	0	0	0	0	 0	 1
+    1981	0	2	0	1	1	1	0	0	2	0	 1	 2
+    1982	1	0	0	0	0	0	0	0	0	0	 0	 0
+            0	0	0	0	0	0	0	0	0	0	 0	 0
+*/
+
+-- 월별 총 입사 인원의 합을 가로로 출력하자
+SELECT '인원(명)' AS "입사 월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '01', 1)) "1월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '02', 1)) "2월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '03', 1)) "3월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '04', 1)) "4월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '05', 1)) "5월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '06', 1)) "6월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '07', 1)) "7월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '08', 1)) "8월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '09', 1)) "9월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '10', 1)) "10월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '11', 1)) "11월"
+     , COUNT(DECODE(TO_CHAR(e.hiredate, 'MM'), '12', 1)) "12월"
+  FROM emp e
+;
+

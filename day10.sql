@@ -549,9 +549,9 @@ SELECT e.empno
 -- '-' 가 출력되도록 하시오
 SELECT e.empno "사번"
      , e.ename "이름"
-     , DECODE(e1.ename, '', '-') "상사 이름"
-     , DECODE(d.dname, '' , '-') "부서명"
-     , DECODE(d.loc, '' , '-') "부서 위치"
+     , NVL(e1.ename, '-') "상사 이름"
+     , NVL(d.dname, '-') "부서명"
+     , NVL(d.loc, '-') "부서 위치"
   FROM emp e
      , emp e1
      , dept d
@@ -635,8 +635,8 @@ SELECT e.empno "사번"
      , e.ename "이름"
      , e.sal "급여"
      , s.grade "급여 등급"
-     , DECODE(d.dname, '' , '-') "부서명"
-     , DECODE(d.loc, '', '-') "부서 위치"
+     , NVL(d.dname, '-') "부서명"
+     , NVL(d.loc, '-') "부서 위치"
   FROM emp e
      , dept d
      , salgrade s
@@ -646,10 +646,11 @@ SELECT e.empno "사번"
 
 -- 2.4) 부서별 소속 인원을 출력하시오. 이때 부서명으로 출력하시오
 SELECT d.dname "부서 명"
-     , e.deptno "인원(명)"
+     , COUNT(e.empno) "인원(명)"
   FROM emp e
      , dept d
  WHERE e.deptno(+) = d.deptno
+ GROUP BY d.dname
 ;
 
 /* 실행결과 다음과 같이 나옵니다.
@@ -663,9 +664,11 @@ OPERATIONS	0
 
 -- 2.5) 2.4의 결과에 부서가 미배정된 인원까지 출력하시오.
 --      이 때, 부서가 없는 직원은 '부서 미배정'으로 출력하시오.
-SELECT d.dname "부서 명"
-     , e.deptno "인원(명)"
+SELECT NVL(d.dname,'부서미배정') "부서 명"
+     , COUNT(e.empno) "인원(명)"
   FROM emp e FULL OUTER JOIN dept d ON  e.deptno = d.deptno
+  GROUP BY d.dname
+  ORDER BY d.dname
 ;
 
 

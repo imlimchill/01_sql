@@ -687,7 +687,7 @@ UPDATE member m
 
 -- 2) M001 멤버의 전공을 NULL 값으로 업데이트 
 UPDATE member m
-   SET m.major = ''
+   SET m.major = NULL
  WHERE m.member_id = 'M001'
 ;
 -- 1 행 이(가) 업데이트되었습니다.
